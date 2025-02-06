@@ -1,15 +1,27 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
-from django_webhook.models import Webhook, WebhookEvent, WebhookSecret
+from django_webhook.models import Webhook, WebhookEvent, WebhookSecret, WebhookTopic
 
-from .forms import WebhookForm
+from .forms import WebhookForm, WebhookTopicForm
 
 
 class WebhookSecretInline(TabularInline):
     model = WebhookSecret
     fields = ("token",)
     extra = 0
+
+
+@admin.register(WebhookTopic)
+class WebhookTopicAdmin(admin.ModelAdmin):
+    form = WebhookTopicForm
+    list_display = (
+        "id",
+        "name",
+    )
+    search_fields = ("name",)
+    filter_horizontal = ("permissions",)
+    save_as = True
 
 
 @admin.register(Webhook)

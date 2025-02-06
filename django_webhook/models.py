@@ -6,7 +6,7 @@ from django.core import validators
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.fields import DateTimeField
-
+from django.conf import settings
 from django_webhook.settings import get_settings
 
 from .validators import validate_topic_model
@@ -22,6 +22,12 @@ STATES = [
 
 class Webhook(models.Model):
     url = models.URLField()
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="The user who created the webhook",
+    )
     topics = models.ManyToManyField(
         "django_webhook.WebhookTopic",
         related_name="webhooks",
@@ -40,12 +46,17 @@ class WebhookTopic(models.Model):  # type: ignore
     name = models.CharField(
         max_length=250,
         unique=True,
-        validators=[
-            validators.RegexValidator(
-                topic_regex, message="Topic must match: " + topic_regex
-            ),
-            validate_topic_model,
-        ],
+        # validators=[
+        #     validators.RegexValidator(
+        #         topic_regex, message="Topic must match: " + topic_regex
+        #     ),
+        #     validate_topic_model,
+        # ],
+    )
+    permissions = models.ManyToManyField(
+        "auth.Permission",
+        blank=True,
+        help_text="The permissions a user must have on an object to receive the webhook",
     )
 
     def __str__(self):

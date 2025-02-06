@@ -14,4 +14,4 @@ class WebhooksConfig(AppConfig):
         from django_webhook.signals import connect_signals
 
         connect_signals()
-        populate_topics_from_settings()
+        # populate_topics_from_settings()

@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 from datetime import datetime
-
+from django.conf import settings
 from django.utils import timezone
 from requests import Request
 
@@ -18,15 +18,16 @@ def prepare_request(webhook: Webhook, payload: str):
     ]
     headers = {
         "Content-Type": "application/json",
-        "Django-Webhook-Request-Timestamp": str(timestamp),
-        "Django-Webhook-Signature-v1": ",".join(signatures),
-        "Django-Webhook-UUID": str(webhook.uuid),
+        "X-Webhook-Request-Timestamp": str(timestamp),
+        "X-Signature": ",".join(signatures),
+        "X-Webhook-UUID": str(webhook.uuid),
+        "X-Environment": "sandbox" if settings.DEBUG else "production",
     }
     r = Request(
         method="POST",
         url=webhook.url,
         headers=headers,
-        data=payload.encode(),
+        data=payload,
     )
     return r.prepare()
 
